@@ -1,28 +1,38 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
-let response;
-
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html 
- * @param {Object} context
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- * 
- */
+const AWS = require('aws-sdk');
 exports.lambdaHandler = async (event, context) => {
-    console.log("shiladitya is here //// inside",JSON.stringify(event.body));
+    AWS.config.update({
+        region: 'ap-south-1'
+    })
+
+    const dynamodb = new AWS.DynamoDB.DocumentClient();
+    const dynamoDBTableName = 'sam-seventh-dynamodb-DynamoDBTable-1JORD1I5AAHDM';
+
+
+    const params = {
+        TableName: dynamoDBTableName,
+        Item: {
+            id: Date.now().toString(),
+            info: {
+                name: 'Shiladitya 10 DynamoDB',
+                email: 'shiladitya.bose.10@gmail.com',
+                age: '10',
+                address: 'Kolkata'
+            }
+        }        
+    }
+
+    try{
+        await dynamodb.put(params).promise();
+        console.log('Data inserted successfully');
+    } catch(error){
+        console.err('Error while inserting data ', error.message);
+    }
+
     try {
-        // const ret = await axios(url);
         response = {
             'statusCode': 200,
             'body': JSON.stringify({
                 message: 'hello world',
-                // location: ret.data.trim()
             })
         }
     } catch (err) {
